@@ -5,10 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Created by abella on 2017-07-03.
- */
-
 @Entity
 @Table(name = "FLOOR")
 public class Floor {
@@ -26,7 +22,7 @@ public class Floor {
 
     @OneToMany
     @JoinTable(name = "FLOOR_ROOMS", joinColumns = @JoinColumn(name = "FLOOR_ID"), inverseJoinColumns = @JoinColumn(name = "ROOM_ID"))
-    private List<Room> roomsList = new ArrayList<Room>();
+    private List<Room> roomsList = new ArrayList<>();
 
     public Floor() {}
 
@@ -59,7 +55,7 @@ public class Floor {
         this.numberOfRooms = numberOfRooms;
     }
 
-    public Collection<Room> getRoomsList() {
+    public List<Room> getRoomsList() {
         return roomsList;
     }
 
