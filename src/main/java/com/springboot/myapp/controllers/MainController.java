@@ -3,19 +3,9 @@ package com.springboot.myapp.controllers;
 import com.springboot.myapp.models.*;
 import com.springboot.myapp.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.*;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-
-/**
- * Created by abella on 2017-07-05.
- */
 
 @RestController
 public class MainController {
@@ -35,39 +25,52 @@ public class MainController {
     @Autowired
     private PersonService personService;
 
-    private List<Building> buildingsList = new ArrayList<Building>();
-    private List<Floor> floorsList = new ArrayList<Floor>();
-    private List<Room> roomsList = new ArrayList<Room>();
-    private List<Sensor> sensorsList = new ArrayList<Sensor>();
-    private List<Person> peopleList = new ArrayList<Person>();
-
     @RequestMapping("/init")
-    public void init(@RequestParam("file") MultipartFile file) {
+    @ResponseBody
+    public List<Building> init(@RequestBody List<Building> buildingsList) {
 
-        try {
-            BufferedInputStream br = new BufferedInputStream(file.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
+        List<Floor> floorsList;
+        List<Room> roomsList;
+        List<Sensor> sensorsList;
+        List<Person> peopleList;
+
+        for(Building building : buildingsList) {
+            floorsList = building.getFloorsList();
+
+            for(Floor floor : floorsList) {
+                roomsList = floor.getRoomsList();
+
+                for(Room room : roomsList) {
+                    sensorsList = room.getSensorsList();
+
+                    room.setSensorsList(initSensors(sensorsList)); // create sensors for room in db and return with id's
+                }
+                floor.setRoomsList(initRooms(roomsList)); // create rooms for floor in db and return with id's
+            }
+            building.setFloorsList(initFloors(floorsList)); // create floors for building in db and return with id's
         }
+        buildingsList = initBuildings(buildingsList); // create buildings in db and return with id's
+
+        return buildingsList;
     }
 
-    public List<Building> initBuildings(List<Building> buildingsList) {
+    private List<Building> initBuildings(List<Building> buildingsList) {
         return buildingService.saveAll(buildingsList);
     }
 
-    public List<Floor> initFloors(List<Floor> floorsList) {
+    private List<Floor> initFloors(List<Floor> floorsList) {
         return floorService.saveAll(floorsList);
     }
 
-    public List<Room> initRooms(List<Room> roomsList) {
+    private List<Room> initRooms(List<Room> roomsList) {
         return roomService.saveAll(roomsList);
     }
 
-    public List<Sensor> initSensors(List<Sensor> sensorsList) {
+    private List<Sensor> initSensors(List<Sensor> sensorsList) {
         return sensorService.saveAll(sensorsList);
     }
 
-    public List<Person> initPeople(List<Person> peopleList) {
+    private List<Person> initPeople(List<Person> peopleList) {
         return personService.saveAll(peopleList);
     }
 }
